@@ -52,6 +52,10 @@ app.get('/test-redis', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+    res.json({ message: 'Welcome to JourneyKnot API server is running successfully!' });
+  });
+
 // 4. Socket.io Connection Handler
 io.on('connection', (socket) => {
   console.log(`[Socket] Device connected: ${socket.id}`);
