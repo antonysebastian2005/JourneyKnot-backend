@@ -57,14 +57,33 @@ app.get('/', (req, res) => {
   });
 
 // 4. Socket.io Connection Handler
+
 io.on('connection', (socket) => {
-  console.log(`[Socket] Device connected: ${socket.id}`);
+  console.log('User connected:', socket.id);
+
+  socket.on('join_trip', ({ tripCode, userId, nickname }) => {
+    socket.join(tripCode);
+    socket.data.userId = userId;
+    socket.data.nickname = nickname;
+    socket.data.tripCode = tripCode;
+    console.log(`${nickname} joined trip ${tripCode}`);
+  });
+
+  socket.on('location_update', ({ tripCode, userId, nickname, lat, lng }) => {
+    socket.to(tripCode).emit('member_location', {
+      userId, nickname, lat, lng, timestamp: Date.now(),
+    });
+  });
 
   socket.on('disconnect', () => {
-    console.log(`[Socket] Device disconnected: ${socket.id}`);
+    console.log('User disconnected:', socket.id);
   });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+const tripRoutes = require('./routes/trip');
+app.use('/trip', tripRoutes);
+
 
